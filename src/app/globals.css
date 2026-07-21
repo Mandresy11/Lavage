@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+
+  --color-navy: #14477c;
+  --color-navy-deep: #103a66;
+  --color-navy-night: #0c2f54;
+  --color-midnight: #0a2148;
+  --color-midnight-soft: #10295a;
+  --color-royal: #16337f;
+  --color-royal-dark: #0e2664;
+  --color-brand-blue: #1583cc;
+  --color-brand-blue-dark: #0f6cab;
+  --color-brand-orange: #f7941d;
+  --color-brand-orange-dark: #e5820c;
+  --color-brand-green: #8dc63f;
+  --color-green-pastel: #eaf5d8;
+  --color-wave: #a8d8f0;
+  --color-wave-light: #d9eefb;
+  --color-sky-soft: #f2f9fe;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+section[id] {
+  scroll-margin-top: 7rem;
+}
+
+body {
+  background-color: var(--color-white);
+  color: var(--color-navy);
+  overflow-x: clip;
+}
+
+::selection {
+  background-color: var(--color-brand-orange);
+  color: var(--color-white);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes loader-progress {
+  0% {
+    transform: translateX(-110%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(260%);
+  }
+}
+
+.section-title {
+  isolation: isolate;
+  position: relative;
+  text-wrap: balance;
+  letter-spacing: -0.04em;
+}
+
+.section-title-on-dark {
+  text-shadow: 0 8px 24px rgb(3 20 53 / 24%);
+}
+
+.title-accent {
+  padding-inline: 0.04em;
+  background-image: linear-gradient(
+    transparent 72%,
+    color-mix(in srgb, currentColor 18%, transparent) 72%
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.section-eyebrow {
+  --eyebrow-color: #75a927;
+  display: inline-block;
+  position: relative;
+  width: fit-content;
+  padding: 0 0.15em 0.7rem;
+  color: var(--eyebrow-color);
+  font-family: var(--font-dancing-script), cursive;
+  font-size: clamp(1.8rem, 3vw, 2.45rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.section-eyebrow::after {
+  position: absolute;
+  bottom: 0.22rem;
+  left: -2%;
+  width: 106%;
+  height: 0.5rem;
+  border-top: 0.22rem solid var(--eyebrow-color);
+  border-radius: 50%;
+  content: "";
+  transform: rotate(-1.5deg);
+}
+
+.section-eyebrow::before {
+  position: absolute;
+  bottom: 0.12rem;
+  left: -4%;
+  width: 88%;
+  height: 0.35rem;
+  border-top: 1px solid var(--eyebrow-color);
+  border-radius: 50%;
+  content: "";
+  transform: rotate(-2.5deg);
+}
+
+.section-eyebrow-dark {
+  --eyebrow-color: #9bd322;
+}
