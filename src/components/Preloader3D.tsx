@@ -228,15 +228,18 @@ export function Preloader3D() {
       ref={overlayRef}
       role="status"
       aria-label="Chargement de Clean & Solutions"
-      className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-[#102d70] text-white"
+      className="fixed inset-0 z-[100] overflow-hidden bg-[#061f52] text-white"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(38,76,155,0.9),rgba(9,28,71,0.98)_68%)]" />
-      <div className="absolute -left-32 -top-32 h-80 w-80 rounded-full border-[52px] border-white/[0.035]" />
-      <div className="absolute -bottom-44 -right-32 h-96 w-96 rounded-full border-[62px] border-brand-green/[0.055]" />
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/back.png')" }}
+        aria-hidden="true"
+      />
+      <div className="absolute inset-0 bg-[#001945]/15" aria-hidden="true" />
 
-      <div className="relative flex flex-col items-center px-6 text-center">
-        <div className="relative h-[220px] w-[220px]">
-          <span className="absolute left-1/2 top-1/2 h-52 w-52 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-blue/25 blur-3xl" />
+      <div className="absolute inset-x-0 top-[12vh] flex flex-col items-center px-5 text-center sm:top-[15vh] lg:top-[20vh]">
+        <div className="relative h-[clamp(180px,26vh,250px)] w-[clamp(180px,26vh,250px)]">
+          <span className="absolute left-1/2 top-1/2 h-[82%] w-[82%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-orange/25 blur-3xl" />
           <canvas
             ref={canvasRef}
             className={`absolute inset-0 block h-full w-full ${
@@ -245,18 +248,40 @@ export function Preloader3D() {
             aria-hidden="true"
           />
         </div>
-        <p className="mt-1 text-xl font-extrabold tracking-[-0.02em] sm:text-2xl">
-          Clean <span className="text-brand-blue">&amp;</span> Solutions
+        <p className="-mt-1 text-[clamp(1.55rem,3vw,2.5rem)] font-extrabold leading-none tracking-[-0.025em] drop-shadow-[0_2px_10px_rgba(0,0,0,0.28)]">
+          Clean <span className="text-[#4db6d3]">&amp;</span> Solutions
         </p>
-        <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.28em] text-brand-green sm:text-xs">
-          La propreté, notre métier
+        <p className="mt-3 text-[clamp(0.65rem,1.25vw,1rem)] font-bold uppercase tracking-[0.28em] text-[#a8e52f] drop-shadow-md">
+          La propret&eacute;, notre m&eacute;tier
         </p>
-        <p className="mt-5 text-xs font-medium tracking-wide text-white/55">
-          Préparation de votre expérience
+        <p className="mt-4 text-[clamp(0.75rem,1.3vw,1rem)] font-medium tracking-wide text-white/80 drop-shadow-md sm:mt-5">
+          Pr&eacute;paration de votre exp&eacute;rience
         </p>
-        <span className="mt-3 h-1 w-40 overflow-hidden rounded-full bg-white/10" aria-hidden="true">
-          <span className="block h-full w-1/2 animate-[loader-progress_1.35s_ease-in-out_infinite] rounded-full bg-linear-to-r from-brand-orange to-brand-green" />
-        </span>
+
+        <svg className="mt-3 h-8 w-[min(78vw,320px)] overflow-visible sm:mt-4" viewBox="0 0 320 32" fill="none" aria-hidden="true">
+          <path
+            className="animate-[loader-wave_1.6s_linear_infinite]"
+            pathLength="1"
+            d="M2 16C38 8 68 25 104 17C142 8 170 6 205 15C240 24 269 9 315 16"
+            stroke="#16e4ef"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeDasharray="0.35 0.65"
+          />
+          <circle cx="315" cy="16" r="8" fill="#35f4ff" opacity="0.16" />
+          <circle cx="315" cy="16" r="3.5" fill="white" />
+        </svg>
+
+        <div className="mt-4 flex items-center gap-3 rounded-full border border-brand-orange/80 bg-[#07336d]/65 px-4 py-2.5 text-[clamp(0.58rem,1.2vw,0.85rem)] font-semibold uppercase tracking-[0.24em] text-white shadow-[0_8px_30px_rgba(0,17,55,0.25)] backdrop-blur-sm sm:mt-5 sm:gap-4 sm:px-6 sm:py-3">
+          <svg className="h-5 w-5 shrink-0 text-[#ffc35b] sm:h-6 sm:w-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 18C3.5 11 6.8 5 12 3C17.2 5 20.5 11 20 18C14.7 20.5 9.3 20.5 4 18Z" fill="currentColor" />
+            <path d="M12 4V19M7.5 6.5L10 19M16.5 6.5L14 19M4.8 11L8.5 19M19.2 11L15.5 19" stroke="#fff1bf" strokeWidth="0.9" />
+          </svg>
+          <span className="whitespace-nowrap">Au c&oelig;ur de la Guadeloupe</span>
+          <svg className="h-5 w-5 shrink-0 text-[#ffc35b] sm:h-6 sm:w-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 1.8L14.5 8.8L21.9 9.1L16 13.6L18 20.8L12 16.7L6 20.8L8 13.6L2.1 9.1L9.5 8.8L12 1.8Z" />
+          </svg>
+        </div>
       </div>
     </div>
   );
