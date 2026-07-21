@@ -82,6 +82,16 @@ body {
   }
 }
 
+@keyframes mobile-logo-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.015);
+  }
+}
+
 .section-title {
   isolation: isolate;
   position: relative;

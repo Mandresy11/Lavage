@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import * as THREE from "three";
 import gsap from "gsap";
 
@@ -25,13 +26,43 @@ export function Preloader3D() {
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+    const isMobile = window.matchMedia(
+      "(max-width: 640px)",
+    ).matches;
+
+    let finishTimer = 0;
+    const finish = () => {
+      gsap.to(overlay, {
+        autoAlpha: 0,
+        duration: reducedMotion ? 0.15 : 0.65,
+        ease: "power2.inOut",
+        onComplete: () => {
+          document.documentElement.dataset.loaderComplete = "true";
+          window.dispatchEvent(new Event("site-loader-complete"));
+          setIsVisible(false);
+        },
+      });
+    };
+
+    if (isMobile) {
+      finishTimer = window.setTimeout(finish, reducedMotion ? 650 : 2800);
+
+      return () => {
+        window.clearTimeout(finishTimer);
+        document.body.style.overflow = previousOverflow;
+        document.documentElement.style.overflow = previousHtmlOverflow;
+        gsap.killTweensOf(overlay);
+      };
+    }
+
+    const circleSegments = isMobile ? 40 : 72;
+    const torusSegments = isMobile ? 56 : 96;
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
     camera.position.set(0, 0, 5.2);
 
     let renderer: THREE.WebGLRenderer | null = null;
     let animationFrame = 0;
-    let finishTimer = 0;
     let stopped = false;
 
     const group = new THREE.Group();
@@ -45,7 +76,7 @@ export function Preloader3D() {
       roughness: 0.3,
     });
     const cylinder = new THREE.Mesh(
-      new THREE.CylinderGeometry(1.05, 1.05, 0.18, 72),
+      new THREE.CylinderGeometry(1.05, 1.05, 0.18, circleSegments),
       edgeMaterial,
     );
     cylinder.rotation.x = Math.PI / 2;
@@ -59,7 +90,7 @@ export function Preloader3D() {
       emissiveIntensity: 0.16,
     });
     const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(1.08, 0.035, 18, 96),
+      new THREE.TorusGeometry(1.08, 0.035, isMobile ? 10 : 18, torusSegments),
       ringMaterial,
     );
     ring.position.z = 0.105;
@@ -73,13 +104,17 @@ export function Preloader3D() {
       roughness: 0.3,
     });
     const orbit = new THREE.Mesh(
-      new THREE.TorusGeometry(1.34, 0.014, 12, 120),
+      new THREE.TorusGeometry(1.34, 0.014, isMobile ? 8 : 12, isMobile ? 64 : 120),
       orbitMaterial,
     );
     orbit.rotation.set(1.02, 0.15, 0.22);
     group.add(orbit);
 
-    const satelliteGeometry = new THREE.SphereGeometry(0.055, 20, 20);
+    const satelliteGeometry = new THREE.SphereGeometry(
+      0.055,
+      isMobile ? 12 : 20,
+      isMobile ? 10 : 20,
+    );
     const satelliteMaterial = new THREE.MeshStandardMaterial({
       color: 0xf7941d,
       emissive: 0xc45b00,
@@ -96,14 +131,14 @@ export function Preloader3D() {
       roughness: 0.52,
     });
     const logoFace = new THREE.Mesh(
-      new THREE.CircleGeometry(1, 72),
+      new THREE.CircleGeometry(1, circleSegments),
       logoMaterial,
     );
     logoFace.position.z = 0.105;
     group.add(logoFace);
 
     const backFace = new THREE.Mesh(
-      new THREE.CircleGeometry(1, 72),
+      new THREE.CircleGeometry(1, circleSegments),
       logoMaterial,
     );
     backFace.position.z = -0.105;
@@ -151,17 +186,23 @@ export function Preloader3D() {
       renderer = new THREE.WebGLRenderer({
         canvas,
         alpha: true,
-        antialias: true,
+        antialias: !isMobile,
         powerPreference: "high-performance",
       });
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(
+        isMobile ? 1 : Math.min(window.devicePixelRatio, 1.75),
+      );
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       resize();
       window.addEventListener("resize", resize);
 
       const clock = new THREE.Clock();
-      const render = () => {
+      let previousRenderTime = 0;
+      const render = (time = 0) => {
         if (stopped || !renderer) return;
+        animationFrame = window.requestAnimationFrame(render);
+        if (isMobile && time - previousRenderTime < 1000 / 30) return;
+        previousRenderTime = time;
         const elapsed = clock.getElapsedTime();
         if (!reducedMotion) {
           group.rotation.y = -0.45 + Math.sin(elapsed * 1.5) * 0.34;
@@ -175,25 +216,11 @@ export function Preloader3D() {
           );
         }
         renderer.render(scene, camera);
-        animationFrame = window.requestAnimationFrame(render);
       };
       render();
     } catch {
       // Le texte et le fond restent visibles si WebGL n'est pas disponible.
     }
-
-    const finish = () => {
-      gsap.to(overlay, {
-        autoAlpha: 0,
-        duration: reducedMotion ? 0.15 : 0.65,
-        ease: "power2.inOut",
-        onComplete: () => {
-          document.documentElement.dataset.loaderComplete = "true";
-          window.dispatchEvent(new Event("site-loader-complete"));
-          setIsVisible(false);
-        },
-      });
-    };
 
     finishTimer = window.setTimeout(finish, reducedMotion ? 650 : 3200);
 
@@ -230,19 +257,38 @@ export function Preloader3D() {
       aria-label="Chargement de Clean & Solutions"
       className="fixed inset-0 z-[100] overflow-hidden bg-[#061f52] text-white"
     >
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/back.png')" }}
+      <Image
+        src="/back.png"
+        alt=""
+        fill
+        priority
+        quality={72}
+        sizes="100vw"
+        className="object-cover object-center"
         aria-hidden="true"
       />
       <div className="absolute inset-0 bg-[#001945]/15" aria-hidden="true" />
 
       <div className="absolute inset-x-0 top-[12vh] flex flex-col items-center px-5 text-center sm:top-[15vh] lg:top-[20vh]">
         <div className="relative h-[clamp(180px,26vh,250px)] w-[clamp(180px,26vh,250px)]">
-          <span className="absolute left-1/2 top-1/2 h-[82%] w-[82%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-orange/25 blur-3xl" />
+          <span className="absolute left-1/2 top-1/2 hidden h-[82%] w-[82%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-orange/25 blur-3xl sm:block" />
+          <div className="absolute inset-[12%] animate-[mobile-logo-float_2.8s_ease-in-out_infinite] sm:hidden" aria-hidden="true">
+            <span className="absolute inset-[-5%] rotate-12 rounded-[50%] border-2 border-brand-orange" />
+            <span className="absolute inset-[-8%] -rotate-[28deg] rounded-[50%] border border-brand-green" />
+            <Image
+              src="/logo.jpg"
+              alt=""
+              fill
+              priority
+              sizes="180px"
+              quality={82}
+              className="rounded-full border-4 border-white object-cover shadow-[0_6px_18px_rgba(0,18,58,0.32)]"
+            />
+            <span className="absolute -right-[7%] top-[17%] h-2.5 w-2.5 rounded-full bg-brand-orange shadow-[0_0_8px_#f7941d]" />
+          </div>
           <canvas
             ref={canvasRef}
-            className={`absolute inset-0 block h-full w-full ${
+            className={`absolute inset-0 hidden h-full w-full sm:block ${
               isWebGLLogoReady ? "opacity-100" : "opacity-0"
             }`}
             aria-hidden="true"
@@ -272,7 +318,7 @@ export function Preloader3D() {
           <circle cx="315" cy="16" r="3.5" fill="white" />
         </svg>
 
-        <div className="mt-4 flex items-center gap-3 rounded-full border border-brand-orange/80 bg-[#07336d]/65 px-4 py-2.5 text-[clamp(0.58rem,1.2vw,0.85rem)] font-semibold uppercase tracking-[0.24em] text-white shadow-[0_8px_30px_rgba(0,17,55,0.25)] backdrop-blur-sm sm:mt-5 sm:gap-4 sm:px-6 sm:py-3">
+        <div className="mt-4 flex items-center gap-3 rounded-full border border-brand-orange/80 bg-[#07336d]/85 px-4 py-2.5 text-[clamp(0.58rem,1.2vw,0.85rem)] font-semibold uppercase tracking-[0.24em] text-white shadow-[0_8px_30px_rgba(0,17,55,0.25)] sm:mt-5 sm:gap-4 sm:bg-[#07336d]/65 sm:px-6 sm:py-3 sm:backdrop-blur-sm">
           <svg className="h-5 w-5 shrink-0 text-[#ffc35b] sm:h-6 sm:w-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M4 18C3.5 11 6.8 5 12 3C17.2 5 20.5 11 20 18C14.7 20.5 9.3 20.5 4 18Z" fill="currentColor" />
             <path d="M12 4V19M7.5 6.5L10 19M16.5 6.5L14 19M4.8 11L8.5 19M19.2 11L15.5 19" stroke="#fff1bf" strokeWidth="0.9" />
